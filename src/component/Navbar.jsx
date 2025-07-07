@@ -97,7 +97,7 @@ const Navbar = () => {
               </div>
             ) : (
               <Link
-                to="/login"
+                to="/log/login"
                 className="ml-4 px-4 py-2 bg-white text-red-600 rounded-md text-sm font-medium hover:bg-gray-100"
               >
                 Login
@@ -164,7 +164,7 @@ const Navbar = () => {
           {!isLoggedIn && (
             <div className="px-5">
               <Link
-                to="/login"
+                to="/log/login"
                 className="block w-full px-4 py-2 text-center bg-white text-red-600 rounded-md text-base font-medium hover:bg-gray-100"
                 onClick={toggleMenu}
               >
