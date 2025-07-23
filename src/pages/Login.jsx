@@ -1,58 +1,54 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { useState, useContext } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaTint } from 'react-icons/fa';
 import Swal from 'sweetalert2';
+import { AuthContext } from '../provider/AuthProvider';
 
-const LoginPage = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+const Login = () => {
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const { signIn } = useContext(AuthContext);
+  const location = useLocation();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    const { email, password } = formData;
 
-    // Basic validation
-    if (!formData.email || !formData.password) {
-      Swal.fire({
+    if (!email || !password) {
+      return Swal.fire({
         icon: 'error',
-        title: 'Oops...',
-        text: 'Please fill in all fields!',
-        confirmButtonColor: '#dc2626', // red-600
+        title: 'Missing Fields',
+        text: 'Please fill out both email and password.',
       });
-      setLoading(false);
-      return;
     }
 
+    setLoading(true);
+
     try {
-      // Simulate API call - replace with actual authentication logic
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // On successful login
-      await Swal.fire({
+      const result = await signIn(email, password);
+      const user = result.user;
+
+      Swal.fire({
+        title: 'Successfully Logged In!',
         icon: 'success',
-        title: 'Login Successful!',
-        text: 'You are being redirected to your dashboard',
-        showConfirmButton: false,
         timer: 1500,
-        timerProgressBar: true,
+        showConfirmButton: false,
       });
-      navigate('/dashboard');
+
+      navigate(location.state?.from || '/');
     } catch (error) {
       Swal.fire({
         icon: 'error',
         title: 'Login Failed',
-        text: error.message || 'Invalid email or password',
-        confirmButtonColor: '#dc2626',
+        text: error.message || 'Something went wrong!',
       });
     } finally {
       setLoading(false);
@@ -60,7 +56,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <FaTint className="h-10 w-10 text-red-600" />
@@ -70,19 +66,16 @@ const LoginPage = () => {
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Don't have an account?{' '}
-          <Link
-            to="/log/signup"
-            className="font-medium text-red-600 hover:text-red-500"
-          >
+          <Link to="/log/signup" className="font-medium text-red-600 hover:text-red-500">
             Register here
           </Link>
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-white py-8 px-6 shadow sm:rounded-lg">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* Email Field */}
+            {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
@@ -97,15 +90,15 @@ const LoginPage = () => {
                   type="email"
                   autoComplete="email"
                   required
-                  className="focus:ring-red-500 focus:border-red-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 border"
-                  placeholder="example@example.com"
                   value={formData.email}
                   onChange={handleChange}
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm"
+                  placeholder="you@example.com"
                 />
               </div>
             </div>
 
-            {/* Password Field */}
+            {/* Password */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
@@ -120,58 +113,30 @@ const LoginPage = () => {
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   required
-                  className="focus:ring-red-500 focus:border-red-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 border"
-                  placeholder="••••••••"
                   value={formData.password}
                   onChange={handleChange}
+                  className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 sm:text-sm"
+                  placeholder="••••••••"
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                   <button
                     type="button"
-                    className="text-gray-400 hover:text-gray-500"
                     onClick={() => setShowPassword(!showPassword)}
+                    className="text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? (
-                      <FaEyeSlash className="h-5 w-5" />
-                    ) : (
-                      <FaEye className="h-5 w-5" />
-                    )}
+                    {showPassword ? <FaEyeSlash className="h-5 w-5" /> : <FaEye className="h-5 w-5" />}
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                  Remember me
-                </label>
-              </div>
-
-              <div className="text-sm">
-                <Link
-                  to="/forgot-password"
-                  className="font-medium text-red-600 hover:text-red-500"
-                >
-                  Forgot your password?
-                </Link>
-              </div>
-            </div>
-
-            {/* Submit Button */}
+            {/* Submit */}
             <div>
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 ${
-                  loading ? 'opacity-75 cursor-not-allowed' : ''
+                className={`w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 ${
+                  loading && 'opacity-70 cursor-not-allowed'
                 }`}
               >
                 {loading ? (
@@ -189,12 +154,12 @@ const LoginPage = () => {
                         r="10"
                         stroke="currentColor"
                         strokeWidth="4"
-                      ></circle>
+                      />
                       <path
                         className="opacity-75"
                         fill="currentColor"
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
+                      />
                     </svg>
                     Signing in...
                   </>
@@ -205,12 +170,15 @@ const LoginPage = () => {
             </div>
           </form>
 
-        
-         
+          <div className="mt-4 text-center">
+            <Link to="/forgot-password" className="text-sm text-red-600 hover:text-red-500">
+              Forgot your password?
+            </Link>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default Login;

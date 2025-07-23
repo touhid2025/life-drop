@@ -4,17 +4,35 @@ import Home from "../pages/Home";
 import RegisterLayOut from "../layout/RegisterLayOut";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
+import Error from "../pages/Error";
+import DashBoard from "../layout/DashBoard";
+import Blog from "../pages/Blog";
+import DonationReq from "../pages/DonationReq";
+import Profile from "../pages/Profile";
+import MyDonation from "../pages/MyDonation";
+import DashContent from "../component/DashContent";
+import CreateDonation from "../pages/CreateDonation";
 
 
 
 const router = createBrowserRouter([
   {
     path: "/",
+    
     element: <MainLayOut></MainLayOut>,
     children: [
         {
             path: "/",
+            loader: ()=>fetch('http://localhost:5000/api/users'),
             element: <Home></Home>,
+        },
+        {
+          path: '/blog',
+          element: <Blog></Blog>
+        },
+        {
+          path: '/donation-requests',
+          element: <DonationReq></DonationReq>
         }
     ]
   },
@@ -27,10 +45,79 @@ const router = createBrowserRouter([
             element: <Login></Login>,
         },
         {
+            
             path: "/log/signup",
-            element: <Signup></Signup>,
-        }
+            loader: async () => {
+            const [districtsRes, upazilasRes] = await Promise.all([
+            fetch('/districts.json'),
+            fetch('/upazilas.json')
+              ]);
+
+            const [districts, upazilas] = await Promise.all([
+            districtsRes.json(),
+            upazilasRes.json()
+            ]);
+
+            return { districts, upazilas };
+              },
+            element: <Signup />,
+
+
+           }
+          ]
+  },
+  {
+    path: "/dashboard",
+    element: <DashBoard></DashBoard>,
+    children: [
+      {
+        path: "/dashboard",
+        element: <DashContent></DashContent>
+      },
+      {
+        path: "profile",
+        loader: async () => {
+            const [districtsRes, upazilasRes] = await Promise.all([
+            fetch('/districts.json'),
+            fetch('/upazilas.json')
+              ]);
+
+            const [districts, upazilas] = await Promise.all([
+            districtsRes.json(),
+            upazilasRes.json()
+            ]);
+
+            return { districts, upazilas };
+              },
+        element: <Profile></Profile>,
+      },
+      {
+        path: "my-donation",
+        element: <MyDonation></MyDonation>,
+      },
+      {
+        path: "create",
+        loader: async () => {
+            const [districtsRes, upazilasRes] = await Promise.all([
+            fetch('/districts.json'),
+            fetch('/upazilas.json')
+              ]);
+
+            const [districts, upazilas] = await Promise.all([
+            districtsRes.json(),
+            upazilasRes.json()
+            ]);
+
+            return { districts, upazilas };
+              },
+        element: <CreateDonation></CreateDonation>
+      }
     ]
+
+  },
+  {
+    path: "/*",
+    element: <Error></Error>,
   }
 ]);
 

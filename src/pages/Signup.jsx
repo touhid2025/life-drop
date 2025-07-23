@@ -1,9 +1,24 @@
-import { useState } from 'react';
-import { Link } from 'react-router';
-import { FaUser, FaEnvelope, FaLock, FaTint, FaMapMarkerAlt, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useState, useContext } from 'react';
+import { Link, useLoaderData, useLocation, useNavigate } from 'react-router';
+import {
+  FaUser,
+  FaEnvelope,
+  FaLock,
+  FaTint,
+  FaMapMarkerAlt,
+  FaEye,
+  FaEyeSlash,
+} from 'react-icons/fa';
+import Swal from 'sweetalert2';
+import { AuthContext } from '../provider/AuthProvider';
+
+const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`;
+const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 const Signup = () => {
-  // Form state
+  const { districts, upazilas } = useLoaderData();
+  
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -12,39 +27,23 @@ const Signup = () => {
     upazila: '',
     password: '',
     confirmPassword: '',
-    avatar: null
+    avatar: null,
   });
+
+  const { createUser, setUser, setLoading } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(null);
 
-  // Districts and Upazilas data (sample - replace with your actual data)
-  const districts = [
-    { id: 1, name: 'Dhaka' },
-    { id: 2, name: 'Chittagong' },
-    { id: 3, name: 'Sylhet' },
-    { id: 4, name: 'Rajshahi' },
-    { id: 5, name: 'Khulna' },
-  ];
-
-  const upazilas = {
-    Dhaka: ['Dhamrai', 'Dohar', 'Keraniganj', 'Nawabganj', 'Savar'],
-    Chittagong: ['Anwara', 'Banshkhali', 'Boalkhali', 'Chandanaish', 'Fatikchhari'],
-    Sylhet: ['Balaganj', 'Beanibazar', 'Bishwanath', 'Companiganj', 'Fenchuganj'],
-    Rajshahi: ['Bagha', 'Bagmara', 'Charghat', 'Durgapur', 'Godagari'],
-    Khulna: ['Batiaghata', 'Dacope', 'Dumuria', 'Dighalia', 'Koyra'],
-  };
-
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    
     if (name === 'avatar') {
       const file = files[0];
       setFormData({ ...formData, avatar: file });
-      
-      // Create preview
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatarPreview(reader.result);
@@ -55,12 +54,80 @@ const Signup = () => {
     }
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add your registration logic here
-    console.log('Form submitted:', formData);
-    // You would typically send this data to your backend API
+
+    if (formData.password !== formData.confirmPassword) {
+      return Swal.fire({
+        icon: 'warning',
+        title: 'Password Mismatch!',
+        text: 'Please make sure both passwords match.',
+      });
+    }
+
+    setLoading(true);
+
+    try {
+      const result = await createUser(formData.email, formData.password);
+      const user = result.user;
+      setUser(user);
+
+      let avatarUrl = '';
+      if (formData.avatar) {
+        const imageData = new FormData();
+        imageData.append('file', formData.avatar);
+        imageData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+        const res = await fetch(CLOUDINARY_UPLOAD_URL, {
+          method: 'POST',
+          body: imageData,
+        });
+
+        const imgRes = await res.json();
+        if (!imgRes.secure_url) throw new Error('Image upload failed');
+        avatarUrl = imgRes.secure_url;
+      }
+
+      const userInfo = {
+        name: formData.name,
+        email: formData.email,
+        bloodGroup: formData.bloodGroup,
+        district: formData.district,
+        upazila: formData.upazila,
+        avatar: avatarUrl,
+        role: 'donor',
+        createdAt: new Date(),
+      };
+
+      await fetch('http://localhost:5000/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userInfo),
+      });
+
+      Swal.fire({
+        title: 'Sign Up Successfully!',
+        icon: 'success',
+      });
+
+      navigate(location.state ? location.state : '/');
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Signup Failed',
+        text: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getUpazilasForSelectedDistrict = () => {
+    const selectedDistrict = districts.find(d => d.name === formData.district);
+    if (!selectedDistrict) return [];
+    return upazilas
+      .filter(u => u.district_id === selectedDistrict.id.toString())
+      .map(u => u.name);
   };
 
   return (
@@ -112,226 +179,65 @@ const Signup = () => {
               </div>
             </div>
 
-            {/* Name Field */}
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaUser className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required
-                  className="focus:ring-red-500 focus:border-red-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 border"
-                  placeholder="John Doe"
-                  value={formData.name}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            {/* Email Field */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaEnvelope className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  className="focus:ring-red-500 focus:border-red-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 border"
-                  placeholder="example@example.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            {/* Blood Group Field */}
-            <div>
-              <label htmlFor="bloodGroup" className="block text-sm font-medium text-gray-700">
-                Blood Group
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaTint className="h-5 w-5 text-gray-400" />
-                </div>
-                <select
-                  id="bloodGroup"
-                  name="bloodGroup"
-                  required
-                  className="focus:ring-red-500 focus:border-red-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 border appearance-none bg-white"
-                  value={formData.bloodGroup}
-                  onChange={handleChange}
-                >
-                  <option value="">Select Blood Group</option>
-                  <option value="A+">A+</option>
-                  <option value="A-">A-</option>
-                  <option value="B+">B+</option>
-                  <option value="B-">B-</option>
-                  <option value="AB+">AB+</option>
-                  <option value="AB-">AB-</option>
-                  <option value="O+">O+</option>
-                  <option value="O-">O-</option>
-                </select>
-              </div>
-            </div>
-
-            {/* District and Upazila Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* District Field */}
-              <div>
-                <label htmlFor="district" className="block text-sm font-medium text-gray-700">
-                  District
-                </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaMapMarkerAlt className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <select
-                    id="district"
-                    name="district"
-                    required
-                    className="focus:ring-red-500 focus:border-red-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 border appearance-none bg-white"
-                    value={formData.district}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select District</option>
-                    {districts.map((district) => (
-                      <option key={district.id} value={district.name}>
-                        {district.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Upazila Field */}
-              <div>
-                <label htmlFor="upazila" className="block text-sm font-medium text-gray-700">
-                  Upazila
-                </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaMapMarkerAlt className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <select
-                    id="upazila"
-                    name="upazila"
-                    required
-                    className="focus:ring-red-500 focus:border-red-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 border appearance-none bg-white"
-                    value={formData.upazila}
-                    onChange={handleChange}
-                    disabled={!formData.district}
-                  >
-                    <option value="">Select Upazila</option>
-                    {formData.district &&
-                      upazilas[formData.district].map((upazila, index) => (
-                        <option key={index} value={upazila}>
-                          {upazila}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Password Field */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaLock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  required
-                  className="focus:ring-red-500 focus:border-red-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 border"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={handleChange}
-                />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <button
-                    type="button"
-                    className="text-gray-400 hover:text-gray-500"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <FaEyeSlash className="h-5 w-5" />
-                    ) : (
-                      <FaEye className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Confirm Password Field */}
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm Password
-              </label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaLock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  required
-                  className="focus:ring-red-500 focus:border-red-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 border"
-                  placeholder="••••••••"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <button
-                    type="button"
-                    className="text-gray-400 hover:text-gray-500"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? (
-                      <FaEyeSlash className="h-5 w-5" />
-                    ) : (
-                      <FaEye className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
+            {/* Input Fields */}
+            <InputField id="name" name="name" type="text" placeholder="John Doe" icon={<FaUser />} value={formData.name} onChange={handleChange} />
+            <InputField id="email" name="email" type="email" placeholder="example@email.com" icon={<FaEnvelope />} value={formData.email} onChange={handleChange} />
+            <SelectField id="bloodGroup" name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} options={['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']} placeholder="Select Blood Group" icon={<FaTint />} />
+            <SelectField id="district" name="district" value={formData.district} onChange={handleChange} options={['', ...districts.map(d => d.name)]} placeholder="Select District" icon={<FaMapMarkerAlt />} />
+            <SelectField id="upazila" name="upazila" value={formData.upazila} onChange={handleChange} options={['', ...getUpazilasForSelectedDistrict()]} placeholder="Select Upazila" icon={<FaMapMarkerAlt />} disabled={!formData.district} />
+            <PasswordField id="password" name="password" value={formData.password} onChange={handleChange} show={showPassword} setShow={setShowPassword} />
+            <PasswordField id="confirmPassword" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} show={showConfirmPassword} setShow={setShowConfirmPassword} />
 
             {/* Submit Button */}
-            <div>
-              <button
-                type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              >
-                Register
-              </button>
-            </div>
+            <button type="submit" className="w-full cursor-pointer flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+              Register
+            </button>
           </form>
         </div>
       </div>
     </div>
   );
 };
+
+// Input Field Component
+const InputField = ({ id, name, type, placeholder, icon, value, onChange }) => (
+  <div>
+    <label htmlFor={id} className="block text-sm font-medium text-gray-700 capitalize">{name}</label>
+    <div className="mt-1 relative rounded-md shadow-sm">
+      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">{icon}</div>
+      <input id={id} name={name} type={type} required className="focus:ring-red-500 focus:border-red-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 border" placeholder={placeholder} value={value} onChange={onChange} />
+    </div>
+  </div>
+);
+
+// Select Field Component
+const SelectField = ({ id, name, value, onChange, options, placeholder, icon, disabled = false }) => (
+  <div>
+    <label htmlFor={id} className="block text-sm font-medium text-gray-700 capitalize">{name}</label>
+    <div className="mt-1 relative rounded-md shadow-sm">
+      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">{icon}</div>
+      <select id={id} name={name} required disabled={disabled} className="focus:ring-red-500 focus:border-red-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 border appearance-none bg-white" value={value} onChange={onChange}>
+        <option value="">{placeholder}</option>
+        {options.map((opt, idx) => <option key={idx} value={opt}>{opt}</option>)}
+      </select>
+    </div>
+  </div>
+);
+
+// Password Field Component
+const PasswordField = ({ id, name, value, onChange, show, setShow }) => (
+  <div>
+    <label htmlFor={id} className="block text-sm font-medium text-gray-700 capitalize">{name}</label>
+    <div className="mt-1 relative rounded-md shadow-sm">
+      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><FaLock className="h-5 w-5 text-gray-400" /></div>
+      <input id={id} name={name} type={show ? 'text' : 'password'} required className="focus:ring-red-500 focus:border-red-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 border" placeholder="••••••••" value={value} onChange={onChange} />
+      <div className="cursor-pointer absolute inset-y-0 right-0 pr-3 flex items-center">
+        <button type="button" onClick={() => setShow(!show)} className="text-gray-400 hover:text-gray-500">
+          {show ? <FaEyeSlash className="h-5 w-5" /> : <FaEye className="h-5 w-5" />}
+        </button>
+      </div>
+    </div>
+  </div>
+);
 
 export default Signup;
