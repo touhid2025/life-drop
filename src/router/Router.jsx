@@ -12,6 +12,9 @@ import Profile from "../pages/Profile";
 import MyDonation from "../pages/MyDonation";
 import DashContent from "../component/DashContent";
 import CreateDonation from "../pages/CreateDonation";
+import AddBlog from "../pages/AddBlog";
+import ManageBlogs from "../pages/ManageBlogs";
+import BlogDetails from "../pages/BlogDetails";
 
 
 
@@ -29,6 +32,10 @@ const router = createBrowserRouter([
         {
           path: '/blog',
           element: <Blog></Blog>
+        },
+        {
+          path: "/blogs/:id",
+          element: <BlogDetails></BlogDetails>,
         },
         {
           path: '/donation-requests',
@@ -94,6 +101,14 @@ const router = createBrowserRouter([
       {
         path: "my-donation",
         element: <MyDonation></MyDonation>,
+      },
+      {
+        path: "add-blogs",
+        element: <AddBlog></AddBlog>,
+      },
+      {
+        path: "manage-blogs",
+        element: <ManageBlogs></ManageBlogs>,
       },
       {
         path: "create",
