@@ -16,6 +16,7 @@ import AddBlog from "../pages/AddBlog";
 import ManageBlogs from "../pages/ManageBlogs";
 import ManageUsers from "../pages/ManageUsers";
 import BlogDetails from "../pages/BlogDetails";
+import EditDonation from "../pages/EditDonation";
 
 
 
@@ -98,6 +99,10 @@ const router = createBrowserRouter([
             return { districts, upazilas };
               },
         element: <Profile></Profile>,
+      },
+      {
+        path: "/dashboard/edit-request/:id",
+        element: <EditDonation></EditDonation>
       },
       {
         path: "my-donation",
