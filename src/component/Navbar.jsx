@@ -10,6 +10,7 @@ import {
 
 const Navbar = () => {
   const { userr, logOut } = useContext(AuthContext);
+  console.log(userr)
   const [userData, setUserData] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -18,17 +19,18 @@ const Navbar = () => {
 
   // Fetch user info
   useEffect(() => {
-    if (userr?.email) {
-      axios.get('http://localhost:5000/api/users')
-        .then(res => {
-          const foundUser = res.data.find(u => u.email === userr.email);
-          setUserData(foundUser);
-        })
-        .catch(err => console.error(err));
-    } else {
-      setUserData(null);
-    }
-  }, [userr]);
+  if (userr?.email) {
+    axios
+      .get(`http://localhost:5000/api/users?email=${userr.email}`)
+      .then(res => {
+        setUserData(res.data);
+      })
+      .catch(err => console.error(err));
+  } else {
+    setUserData(null);
+  }
+}, [userr]);
+
 
   // Logout handler
   const handleLogout = () => {

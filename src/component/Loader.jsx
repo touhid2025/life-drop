@@ -1,41 +1,8 @@
-// SpiralLoader.jsx
-import { motion } from "framer-motion";
+import React from 'react';
 
-const Loader = ({ size = 48, color = "#dc2626" }) => {
-  const numDots = 12;
-  const dots = Array.from({ length: numDots });
-
+const Loader = () => {
   return (
-    <div className="relative flex items-center justify-center w-full h-full">
-      {dots.map((_, i) => {
-        const angle = (i / numDots) * 360;
-        const delay = i * 0.1;
-
-        return (
-          <motion.span
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              width: size * 0.15,
-              height: size * 0.15,
-              backgroundColor: color,
-              top: `${50 - 45 * Math.cos((angle * Math.PI) / 180)}%`,
-              left: `${50 + 45 * Math.sin((angle * Math.PI) / 180)}%`,
-            }}
-            animate={{
-              scale: [1, 1.5, 1],
-              opacity: [1, 0.4, 1],
-            }}
-            transition={{
-              duration: 1.2,
-              repeat: Infinity,
-              delay,
-              ease: "easeInOut",
-            }}
-          />
-        );
-      })}
-    </div>
+    <div class="w-12 text-orange-600"><svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="6" height="6" rx="1"><animate id="spinner_w36s" begin="0;spinner_5GfT.end-0.25s" attributeName="x" dur="0.75s" values="4;14;4"></animate><animate begin="0;spinner_5GfT.end-0.25s" attributeName="y" dur="0.75s" values="4;14;4"></animate></rect><rect x="4" y="14" width="6" height="6" rx="1"><animate begin="spinner_w36s.end-0.5s" attributeName="x" dur="0.75s" values="4;14;4"></animate><animate begin="spinner_w36s.end-0.5s" attributeName="y" dur="0.75s" values="14;4;14"></animate></rect><rect x="14" y="4" width="6" height="6" rx="1"><animate begin="spinner_w36s.end-0.625s" attributeName="x" dur="0.75s" values="14;4;14"></animate><animate begin="spinner_w36s.end-0.625s" attributeName="y" dur="0.75s" values="4;14;4"></animate></rect><rect x="14" y="14" width="6" height="6" rx="1"><animate id="spinner_5GfT" begin="spinner_w36s.end-0.375s" attributeName="x" dur="0.75s" values="14;4;14"></animate><animate begin="spinner_w36s.end-0.375s" attributeName="y" dur="0.75s" values="14;4;14"></animate></rect></svg></div>
   );
 };
 

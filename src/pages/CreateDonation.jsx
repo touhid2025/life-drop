@@ -11,6 +11,7 @@ const CreateDonation = () => {
   const { districts = [], upazilas = [] } = useLoaderData();
 
   const [fullUser, setFullUser] = useState(null);
+  
   const [formData, setFormData] = useState({
     recipientName: "",
     recipientDistrict: "",
@@ -24,30 +25,27 @@ const CreateDonation = () => {
   });
 
   // Load full user data from backend
-  useEffect(() => {
-    if (!userr?.email) return;
-
-    const fetchUser = async () => {
+ useEffect(() => {
+    const fetchUserData = async () => {
       try {
         const res = await axios.get("http://localhost:5000/api/users");
-        const foundUser = res.data.find(u => u.email === userr.email);
-        setFullUser(foundUser || null);
-
-        if (foundUser) {
-          setFormData(prev => ({
+        const matchedUser = res.data.users.find((u) => u.email === userr?.email);
+        if (matchedUser) {
+          setFullUser(matchedUser);
+          setFormData((prev) => ({
             ...prev,
-            bloodGroup: foundUser.bloodGroup || "",
-            recipientDistrict: foundUser.district || "",
-            recipientUpazila: foundUser.upazila || ""
+            bloodGroup: matchedUser.bloodGroup || "",
+            recipientDistrict: matchedUser.district || "",
+            recipientUpazila: matchedUser.upazila || "",
           }));
         }
       } catch (error) {
-        console.error("Error loading user data:", error);
+        console.error("Error fetching user info:", error);
       }
     };
 
-    fetchUser();
-  }, [userr]);
+    if (userr?.email) fetchUserData();
+  }, [userr?.email]);
 
   // Filter upazilas based on selected district
   const filteredUpazilas = formData.recipientDistrict
@@ -106,6 +104,8 @@ const CreateDonation = () => {
       console.error(error);
     }
   };
+
+  if (fullUser==null) return <div className='flex item-center justify-center'><svg class="w-8 h-8  text-red-600 animate-spin" viewBox="0 0 24 24" fill="currentColor"><rect x="11" y="1" width="2" height="5" opacity="1"/><rect x="11" y="1" width="2" height="5" transform="rotate(30 12 12)" opacity="0.9"/><rect x="11" y="1" width="2" height="5" transform="rotate(60 12 12)" opacity="0.8"/><rect x="11" y="1" width="2" height="5" transform="rotate(90 12 12)" opacity="0.7"/><rect x="11" y="1" width="2" height="5" transform="rotate(120 12 12)" opacity="0.6"/><rect x="11" y="1" width="2" height="5" transform="rotate(150 12 12)" opacity="0.5"/><rect x="11" y="1" width="2" height="5" transform="rotate(180 12 12)" opacity="0.4"/><rect x="11" y="1" width="2" height="5" transform="rotate(210 12 12)" opacity="0.3"/><rect x="11" y="1" width="2" height="5" transform="rotate(240 12 12)" opacity="0.2"/><rect x="11" y="1" width="2" height="5" transform="rotate(270 12 12)" opacity="0.1"/><rect x="11" y="1" width="2" height="5" transform="rotate(300 12 12)" opacity="0.05"/><rect x="11" y="1" width="2" height="5" transform="rotate(330 12 12)" opacity="0.02"/></svg></div>;
 
   return (
     <div className="max-w-3xl mx-auto p-4 bg-white rounded-xl shadow mt-10">
@@ -219,7 +219,7 @@ const CreateDonation = () => {
           className="textarea textarea-bordered w-full"
           required
         />
-        <button type="submit" className="btn btn-primary w-full">
+        <button type="submit" className="bg-red-600 text-white py-3 cursor-pointer rounded-lg w-full">
           Request
         </button>
       </form>

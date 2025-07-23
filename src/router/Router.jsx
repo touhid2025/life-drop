@@ -14,6 +14,7 @@ import DashContent from "../component/DashContent";
 import CreateDonation from "../pages/CreateDonation";
 import AddBlog from "../pages/AddBlog";
 import ManageBlogs from "../pages/ManageBlogs";
+import ManageUsers from "../pages/ManageUsers";
 import BlogDetails from "../pages/BlogDetails";
 
 
@@ -108,7 +109,12 @@ const router = createBrowserRouter([
       },
       {
         path: "manage-blogs",
+        loader: ()=>fetch('http://localhost:5000/api/users'),
         element: <ManageBlogs></ManageBlogs>,
+      },
+      {
+        path: "manage-users",
+        element: <ManageUsers></ManageUsers>
       },
       {
         path: "create",

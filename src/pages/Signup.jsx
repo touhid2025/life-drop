@@ -17,7 +17,6 @@ const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 const Signup = () => {
   const { districts, upazilas } = useLoaderData();
-  
 
   const [formData, setFormData] = useState({
     name: '',
@@ -96,6 +95,7 @@ const Signup = () => {
         upazila: formData.upazila,
         avatar: avatarUrl,
         role: 'donor',
+        status: 'active',        // <-- Added default status here
         createdAt: new Date(),
       };
 

@@ -14,7 +14,7 @@ const Dashboard = () => {
     if (userr?.email) {
       axios.get('http://localhost:5000/api/users')
         .then(res => {
-          const foundUser = res.data.find(u => u.email === userr.email);
+          const foundUser = res.data.users.find(u => u.email === userr.email);
           setCurrentUser(foundUser);
         })
         .catch(error => console.error(error));
