@@ -1,65 +1,72 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import { Link} from 'react-router';
+import { FaTint } from 'react-icons/fa';
+import axios from 'axios';
+// import { AuthContext } from '../provider/AuthProvider';
 
-const BloodDonationRequests = () => {
+
+const DonationRequests = () => {
   const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // const { userr } = useContext(AuthContext);
+  // const navigate = useNavigate();
+  // const location = useLocation(); 
 
   useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const res = await axios.get("http://localhost:5000/api/donation-requests");
-        setRequests(res.data);
-      } catch (err) {
-        setError("Failed to load donation requests.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRequests();
+    axios.get('http://localhost:5000/api/donation-requests')
+      .then(res => {
+        const pending = res.data.filter(req => req.donationStatus === 'pending');
+        setRequests(pending);
+      })
+      .catch(err => {
+        console.error('Failed to fetch requests:', err);
+      });
   }, []);
 
-  if (loading) return <p className="text-center mt-10">Loading donation requests...</p>;
-  if (error) return <p className="text-center mt-10 text-red-600">{error}</p>;
-
-  if (requests.length === 0)
-    return <p className="text-center mt-10">No donation requests found.</p>;
+  // const handleView = () => {
+  //  navigate(location.state ? location.state : '/');
+  // };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-white rounded shadow mt-10">
-      <h2 className="text-3xl font-bold text-red-600 mb-6">Blood Donation Requests</h2>
-
-      <div className="grid gap-6">
-        {requests.map((req) => (
-          <div key={req._id} className="border border-red-300 rounded p-4 shadow hover:shadow-md transition">
-            <h3 className="text-xl font-semibold text-red-700 mb-2">{req.recipientName}</h3>
-            <p>
-              <strong>Blood Group:</strong> {req.bloodGroup}
-            </p>
-            <p>
-              <strong>District:</strong> {req.recipientDistrict} | <strong>Upazila:</strong> {req.recipientUpazila}
-            </p>
-            <p>
-              <strong>Hospital:</strong> {req.hospitalName}
-            </p>
-            <p>
-              <strong>Address:</strong> {req.address}
-            </p>
-            <p>
-              <strong>Date & Time:</strong> {req.date} at {req.time}
-            </p>
-            <p className="italic mt-2">
-              <strong>Message:</strong> {req.message}
-            </p>
-            <p className="mt-2 text-sm text-gray-500">
-              Requested by: {req.requesterName} ({req.requesterEmail})
-            </p>
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+      {requests.map(req => (
+        <div
+          key={req._id}
+          className="bg-white rounded-xl shadow p-4 flex flex-col justify-between hover:shadow-md transition"
+        >
+          <div className="flex items-center gap-3">
+            <div className="bg-red-100 p-3 rounded-md">
+              <FaTint className="text-red-500 text-xl" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold">{req.recipientName}</h2>
+              <p className="text-gray-500 text-sm">
+                Needs {req.bloodGroup} blood at {req.hospitalName}
+              </p>
+            </div>
           </div>
-        ))}
-      </div>
+
+          <div className="flex justify-between mt-4 text-sm text-gray-700">
+            <div>
+              <p className="font-medium">Location</p>
+              <p>{req.recipientDistrict}, {req.recipientUpazila}</p>
+            </div>
+            <div>
+              <p className="font-medium">Date & Time</p>
+              <p>{req.date}, {req.time}</p>
+            </div>
+          </div>
+
+          <Link
+          to={`/donation-details/${req._id}`}
+            
+            className="bg-red-600 text-center text-white font-semibold py-2 rounded-md mt-4 hover:bg-red-700"
+          >
+            View Details
+          </Link>
+        </div>
+      ))}
     </div>
   );
 };
 
-export default BloodDonationRequests;
+export default DonationRequests;

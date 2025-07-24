@@ -1,40 +1,36 @@
 import { FaTint, FaHandsHelping, FaSearch, FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
-import { Link } from 'react-router';
+import { Link, } from 'react-router';
+import axios from 'axios';
+// import { AuthContext } from '../provider/AuthProvider';
+import {  useEffect, useState } from 'react';
 
 const HomePage = () => {
   // Sample blood donation requests data
-  const recentRequests = [
-    {
-      id: 1,
-      recipientName: "Rahim Khan",
-      bloodGroup: "B+",
-      district: "Dhaka",
-      upazila: "Mirpur",
-      hospital: "Dhaka Medical College",
-      date: "2023-06-15",
-      time: "10:00 AM"
-    },
-    {
-      id: 2,
-      recipientName: "Fatima Begum",
-      bloodGroup: "O-",
-      district: "Chittagong",
-      upazila: "Agrabad",
-      hospital: "Chittagong Medical College",
-      date: "2023-06-16",
-      time: "02:00 PM"
-    },
-    {
-      id: 3,
-      recipientName: "Abdul Karim",
-      bloodGroup: "AB+",
-      district: "Sylhet",
-      upazila: "Zindabazar",
-      hospital: "Sylhet MAG Osmani Medical College",
-      date: "2023-06-17",
-      time: "11:30 AM"
-    }
-  ];
+  const [requests, setRequests] = useState([]);
+  const sortedData = requests.sort((a,b)=> new Date(a.date) - new Date(b.date));
+  const topThree = sortedData.slice(0,3);
+    // const { userr } = useContext(AuthContext);
+    // const navigate = useNavigate();
+  
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/donation-requests')
+      .then(res => {
+        const pending = res.data.filter(req => req.donationStatus === 'pending');
+        setRequests(pending);
+      })
+      .catch(err => {
+        console.error('Failed to fetch requests:', err);
+      });
+  }, []);
+
+  // const handleView = (id) => {
+  //   if (!userr) {
+  //     navigate('/login');
+  //   } else {
+  //     navigate(`/donation-details/${id}`);
+  //   }
+  // };
+
 
   // Featured stats data
   const stats = [
@@ -127,8 +123,8 @@ const HomePage = () => {
 
           <div className="mt-10">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {recentRequests.map((request) => (
-                <div key={request.id} className="bg-white overflow-hidden shadow rounded-lg">
+              {topThree.map((request) => (
+                <div key={request._id} className="bg-white overflow-hidden shadow rounded-lg">
                   <div className="px-4 py-5 sm:p-6">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 bg-red-100 rounded-md p-3">
@@ -153,7 +149,7 @@ const HomePage = () => {
                     </div>
                     <div className="mt-5">
                       <Link
-                        to={`/donation-request/${request.id}`}
+                        to={`/donation-request/${request._id}`}
                         className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700"
                       >
                         View Details

@@ -11,7 +11,7 @@ const Home = () => {
             
            
           
-            <Loader/>
+           
             <HomePage/>
         </div>
     );

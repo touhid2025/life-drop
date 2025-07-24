@@ -17,7 +17,8 @@ import ManageBlogs from "../pages/ManageBlogs";
 import ManageUsers from "../pages/ManageUsers";
 import ManageDonation from "../pages/ManageDonation";
 import BlogDetails from "../pages/BlogDetails";
-import EditDonation from "../pages/EditDonation";
+import DonationDetails from "../pages/DonationDetails";
+import PrivateRoute from "../provider/PrivateRout";
 
 
 
@@ -40,9 +41,14 @@ const router = createBrowserRouter([
           path: "/blogs/:id",
           element: <BlogDetails></BlogDetails>,
         },
+        
         {
           path: '/donation-requests',
           element: <DonationReq></DonationReq>
+        },
+        {
+          path: "/donation-details/:id",
+          element: <DonationDetails></DonationDetails>
         }
     ]
   },
@@ -100,10 +106,6 @@ const router = createBrowserRouter([
             return { districts, upazilas };
               },
         element: <Profile></Profile>,
-      },
-      {
-        path: "/dashboard/edit-request/:id",
-        element: <EditDonation></EditDonation>
       },
       {
         path: "my-donation",
