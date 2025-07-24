@@ -19,7 +19,6 @@ const AllUsers = () => {
           limit,
         },
       });
-      // Adjust according to your backend response
       setUsers(res.data.users || res.data || []);
       setTotalUsers(res.data.total || 0);
     } catch (err) {
@@ -68,12 +67,10 @@ const AllUsers = () => {
           <thead>
             <tr>
               <th>Avatar</th>
-              <th>Email</th>
-              <th>Name</th>
+              <th className="hidden sm:table-cell">Email</th>
+              <th className="hidden sm:table-cell">Name</th>
               <th>Role</th>
-              <th>Blood Group</th>
-              <th>District</th>
-              <th>Upazila</th>
+              <th>Blood</th>
               <th>Status</th>
               <th className="text-right">Actions</th>
             </tr>
@@ -81,29 +78,22 @@ const AllUsers = () => {
           <tbody>
             {users.length > 0 ? (
               users.map((u) => (
-                <tr key={u.id}>
+                <tr key={u._id}>
                   <td>
                     <img
-                      src={
-                        u.avatar ||
-                        "https://i.ibb.co/2nP7Fqb/default-avatar.png"
-                      }
+                      src={u.avatar || "https://i.ibb.co/2nP7Fqb/default-avatar.png"}
                       alt="avatar"
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   </td>
-                  <td>{u.email}</td>
-                  <td>{u.name}</td>
+                  <td className="hidden sm:table-cell">{u.email}</td>
+                  <td className="hidden sm:table-cell">{u.name}</td>
                   <td className="capitalize">{u.role}</td>
                   <td>{u.bloodGroup || "-"}</td>
-                  <td>{u.district || "-"}</td>
-                  <td>{u.upazila || "-"}</td>
                   <td>
                     <span
                       className={`badge ${
-                        u.status === "active"
-                          ? "badge-success"
-                          : "badge-error"
+                        u.status === "active" ? "badge-success" : "badge-error"
                       } capitalize`}
                     >
                       {u.status || "active"}
@@ -113,14 +103,14 @@ const AllUsers = () => {
                     <button
                       title="Make Admin"
                       className="btn btn-xs btn-outline"
-                      onClick={() => updateUser(u.id, { role: "admin" })}
+                      onClick={() => updateUser(u._id, { role: "admin" })}
                     >
                       <FaUserShield className="text-blue-500" />
                     </button>
                     <button
                       title="Make Volunteer"
                       className="btn btn-xs btn-outline"
-                      onClick={() => updateUser(u.id, { role: "volunteer" })}
+                      onClick={() => updateUser(u._id, { role: "volunteer" })}
                     >
                       <FaUserPlus className="text-green-600" />
                     </button>
@@ -128,7 +118,7 @@ const AllUsers = () => {
                       <button
                         title="Block User"
                         className="btn btn-xs btn-outline"
-                        onClick={() => updateUser(u.id, { status: "blocked" })}
+                        onClick={() => updateUser(u._id, { status: "blocked" })}
                       >
                         <FaBan className="text-red-500" />
                       </button>
@@ -136,7 +126,7 @@ const AllUsers = () => {
                       <button
                         title="Unblock User"
                         className="btn btn-xs btn-outline"
-                        onClick={() => updateUser(u.id, { status: "active" })}
+                        onClick={() => updateUser(u._id, { status: "active" })}
                       >
                         <FaUnlock className="text-yellow-500" />
                       </button>
@@ -146,7 +136,7 @@ const AllUsers = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={9} className="text-center py-4">
+                <td colSpan={7} className="text-center py-4">
                   No users found.
                 </td>
               </tr>

@@ -15,6 +15,7 @@ import CreateDonation from "../pages/CreateDonation";
 import AddBlog from "../pages/AddBlog";
 import ManageBlogs from "../pages/ManageBlogs";
 import ManageUsers from "../pages/ManageUsers";
+import ManageDonation from "../pages/ManageDonation";
 import BlogDetails from "../pages/BlogDetails";
 import EditDonation from "../pages/EditDonation";
 
@@ -107,6 +108,10 @@ const router = createBrowserRouter([
       {
         path: "my-donation",
         element: <MyDonation></MyDonation>,
+      },
+      {
+        path: "manage-donation",
+        element: <ManageDonation></ManageDonation>
       },
       {
         path: "add-blogs",

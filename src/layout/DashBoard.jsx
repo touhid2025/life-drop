@@ -55,7 +55,7 @@ const Dashboard = () => {
           <NavLink to="/dashboard/add-blogs" onClick={() => setSidebarOpen(false)} className="flex items-center gap-2 px-4 py-2 hover:bg-red-100 rounded">
             <FaPlus /> Add Blogs
           </NavLink>
-          <NavLink to="/dashboard/manage-donations" onClick={() => setSidebarOpen(false)} className="flex items-center gap-2 px-4 py-2 hover:bg-red-100 rounded">
+          <NavLink to="/dashboard/manage-donation" onClick={() => setSidebarOpen(false)} className="flex items-center gap-2 px-4 py-2 hover:bg-red-100 rounded">
             <FaTint /> Manage Donations
           </NavLink>
         </>
