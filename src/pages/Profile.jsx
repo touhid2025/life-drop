@@ -1,132 +1,81 @@
-import { useState, useEffect, useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useLoaderData } from 'react-router';
-import Swal from 'sweetalert2';
-import {
-  FaUser,
-  FaEnvelope,
-  FaTint,
-  FaMapMarkerAlt,
-  FaEdit,
-  FaSave,
-  FaTimes,
-} from 'react-icons/fa';
 import { AuthContext } from '../provider/AuthProvider';
-
-const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`;
-const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+import Swal from 'sweetalert2';
+import axios from 'axios';
 
 const Profile = () => {
   const { districts, upazilas } = useLoaderData();
   const { userr } = useContext(AuthContext);
-
   const [userData, setUserData] = useState(null);
   const [editing, setEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    bloodGroup: '',
-    district: '',
-    upazila: '',
-    avatar: '',
-  });
-  const [avatarPreview, setAvatarPreview] = useState(null);
   const [newAvatarFile, setNewAvatarFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState('');
+
+  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
   useEffect(() => {
-    if (!userr?.email) return;
-
-    fetch('http://localhost:5000/api/users')
-      .then(res => res.json())
-      .then(data => {
-        const foundUser = data.users.find(u => u.email === userr.email);
-        if (foundUser) {
-          setUserData(foundUser);
-          setFormData({
-            name: foundUser.name || '',
-            email: foundUser.email || '',
-            bloodGroup: foundUser.bloodGroup || '',
-            district: foundUser.district || '',
-            upazila: foundUser.upazila || '',
-            avatar: foundUser.avatar || '',
-          });
-          setAvatarPreview(foundUser.avatar || null);
-        }
-      });
+    if (userr?.email) {
+      axios
+        .get(`http://localhost:5000/api/users?email=${userr.email}`)
+        .then((res) => {
+          setUserData(res.data);
+          setPreviewUrl(res.data.avatar);
+        })
+        .catch((err) => {
+          console.error('Error loading user:', err);
+        });
+    }
   }, [userr]);
 
-  const filteredUpazilas = formData.district
-    ? upazilas
-        .filter(
-          u =>
-            Number(u.district_id) ===
-            Number(districts.find(d => d.name === formData.district)?.id)
-        )
-        .map(u => u.name)
+  // Filter upazilas based on selected district
+  const filteredUpazilas = userData?.district
+    ? upazilas.filter(
+        (u) =>
+          Number(u.district_id) ===
+          Number(districts.find((d) => d.name === userData.district)?.id)
+      )
     : [];
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
+    const { name, value } = e.target;
 
-    if (name === 'avatar' && files && files[0]) {
-      setNewAvatarFile(files[0]);
-      const reader = new FileReader();
-      reader.onloadend = () => setAvatarPreview(reader.result);
-      reader.readAsDataURL(files[0]);
+    // When district changes, reset upazila
+    if (name === 'district') {
+      setUserData((prev) => ({ ...prev, district: value, upazila: '' }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-      if (name === 'district') {
-        setFormData(prev => ({ ...prev, upazila: '' }));
-      }
+      setUserData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  const handleEditToggle = () => setEditing(true);
-
-  const handleCancel = () => {
-    setFormData({
-      name: userData.name || '',
-      email: userData.email || '',
-      bloodGroup: userData.bloodGroup || '',
-      district: userData.district || '',
-      upazila: userData.upazila || '',
-      avatar: userData.avatar || '',
-    });
-    setAvatarPreview(userData.avatar || null);
-    setNewAvatarFile(null);
-    setEditing(false);
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    setNewAvatarFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let avatarUrl = userData.avatar || '';
+
+    let updatedUser = { ...userData };
 
     if (newAvatarFile) {
-      const imageData = new FormData();
-      imageData.append('file', newAvatarFile);
-      imageData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      const formData = new FormData();
+      formData.append('file', newAvatarFile);
+      formData.append('upload_preset', uploadPreset);
 
       try {
-        const res = await fetch(CLOUDINARY_UPLOAD_URL, {
-          method: 'POST',
-          body: imageData,
-        });
-        const imgRes = await res.json();
-        if (imgRes.secure_url) avatarUrl = imgRes.secure_url;
-        else throw new Error('Avatar upload failed');
+        const res = await axios.post(
+          `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+          formData
+        );
+        updatedUser.avatar = res.data.secure_url;
       } catch (error) {
-        Swal.fire('Error', 'Avatar upload failed', 'error');
+        Swal.fire('Error', 'Image upload failed', 'error');
         return;
       }
     }
-
-    const updatedUser = {
-      ...userData,
-      name: formData.name,
-      bloodGroup: formData.bloodGroup,
-      district: formData.district,
-      upazila: formData.upazila,
-      avatar: avatarUrl,
-    };
 
     try {
       const response = await fetch(`http://localhost:5000/api/users/${userData._id}`, {
@@ -135,107 +84,154 @@ const Profile = () => {
         body: JSON.stringify(updatedUser),
       });
 
-      if (!response.ok) throw new Error('Failed to update profile');
+      if (!response.ok) throw new Error('Update failed');
 
-      const data = await response.json();
-      setUserData(data);
+      const newRes = await fetch(`http://localhost:5000/api/users/${userData._id}`);
+      const updatedData = await newRes.json();
+      setUserData(updatedData);
       setEditing(false);
       setNewAvatarFile(null);
-
       Swal.fire('Success', 'Profile updated successfully', 'success');
     } catch (error) {
-      Swal.fire('Error', error.message || 'Failed to update profile', 'error');
+      console.error(error);
+      Swal.fire('Error', 'Failed to update profile', 'error');
     }
   };
 
-  if (!userData) return <div className='flex item-center justify-center'><svg className="w-8 h-8  text-red-600 animate-spin" viewBox="0 0 24 24" fill="currentColor"><rect x="11" y="1" width="2" height="5" opacity="1"/><rect x="11" y="1" width="2" height="5" transform="rotate(30 12 12)" opacity="0.9"/><rect x="11" y="1" width="2" height="5" transform="rotate(60 12 12)" opacity="0.8"/><rect x="11" y="1" width="2" height="5" transform="rotate(90 12 12)" opacity="0.7"/><rect x="11" y="1" width="2" height="5" transform="rotate(120 12 12)" opacity="0.6"/><rect x="11" y="1" width="2" height="5" transform="rotate(150 12 12)" opacity="0.5"/><rect x="11" y="1" width="2" height="5" transform="rotate(180 12 12)" opacity="0.4"/><rect x="11" y="1" width="2" height="5" transform="rotate(210 12 12)" opacity="0.3"/><rect x="11" y="1" width="2" height="5" transform="rotate(240 12 12)" opacity="0.2"/><rect x="11" y="1" width="2" height="5" transform="rotate(270 12 12)" opacity="0.1"/><rect x="11" y="1" width="2" height="5" transform="rotate(300 12 12)" opacity="0.05"/><rect x="11" y="1" width="2" height="5" transform="rotate(330 12 12)" opacity="0.02"/></svg></div>;
+  if (!userData) return <div className="text-center py-6">Loading...</div>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded shadow mt-10">
-      <h2 className="text-3xl font-bold text-red-600 mb-6 flex items-center gap-2">
-        <FaUser /> My Profile
-      </h2>
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <h2 className="text-2xl font-bold mb-6 text-center">My Profile</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="flex items-center gap-6">
-          <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 border-red-600 shadow-md">
-            <img src={avatarPreview || '/default-avatar.png'} alt="Avatar" className="object-cover w-full h-full" />
-            {editing && (
-              <label htmlFor="avatar" className="absolute bottom-0 right-0 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 cursor-pointer" title="Change Avatar">
-                <FaEdit />
-                <input type="file" id="avatar" name="avatar" accept="image/*" className="hidden" onChange={handleChange} />
-              </label>
-            )}
+      <div className="flex justify-center mb-6">
+        <img
+          src={previewUrl}
+          alt="Avatar"
+          className="w-28 h-28 rounded-full border object-cover"
+        />
+      </div>
+
+      {editing ? (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block font-medium mb-1">Name</label>
+            <input
+              type="text"
+              name="name"
+              value={userData.name || ''}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded"
+              required
+            />
           </div>
-          {!editing && (
-            <button type="button" onClick={handleEditToggle} className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center gap-2">
-              <FaEdit /> Edit Profile
+
+          <div>
+            <label className="block font-medium mb-1">Blood Group</label>
+            <select
+              name="bloodGroup"
+              value={userData.bloodGroup || ''}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded"
+              required
+            >
+              <option value="">Select Blood Group</option>
+              {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((bg) => (
+                <option key={bg} value={bg}>
+                  {bg}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block font-medium mb-1">District</label>
+            <select
+              name="district"
+              value={userData.district || ''}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded"
+              required
+            >
+              <option value="">Select District</option>
+              {districts.map((d) => (
+                <option key={d.id} value={d.name}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block font-medium mb-1">Upazila</label>
+            <select
+              name="upazila"
+              value={userData.upazila || ''}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded"
+              required
+              disabled={!userData.district}
+            >
+              <option value="">Select Upazila</option>
+              {filteredUpazilas.map((u) => (
+                <option key={u.id} value={u.name}>
+                  {u.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block font-medium mb-1">Upload New Avatar</label>
+            <input type="file" accept="image/*" onChange={handleAvatarChange} />
+          </div>
+
+          <div className="flex justify-between mt-6">
+            <button
+              type="submit"
+              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+            >
+              Save
             </button>
-          )}
+            <button
+              type="button"
+              onClick={() => {
+                setEditing(false);
+                setPreviewUrl(userData.avatar);
+              }}
+              className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className="space-y-2 text-lg text-gray-700">
+          <p>
+            <strong>Name:</strong> {userData.name}
+          </p>
+          <p>
+            <strong>Email:</strong> {userData.email}
+          </p>
+          <p>
+            <strong>Blood Group:</strong> {userData.bloodGroup}
+          </p>
+          <p>
+            <strong>District:</strong> {userData.district}
+          </p>
+          <p>
+            <strong>Upazila:</strong> {userData.upazila}
+          </p>
+          <button
+            onClick={() => setEditing(true)}
+            className="mt-4 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+          >
+            Edit
+          </button>
         </div>
-
-        <InputField label="Name" name="name" icon={<FaUser />} value={formData.name} onChange={handleChange} disabled={!editing} />
-
-        <InputField label="Email" name="email" icon={<FaEnvelope />} value={formData.email} disabled={true} />
-
-        <SelectField label="Blood Group" name="bloodGroup" icon={<FaTint />} value={formData.bloodGroup} onChange={handleChange} options={['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']} disabled={!editing} />
-
-        <SelectField label="District" name="district" icon={<FaMapMarkerAlt />} value={formData.district} onChange={handleChange} options={['', ...districts.map(d => d.name)]} disabled={!editing} />
-
-        <SelectField label="Upazila" name="upazila" icon={<FaMapMarkerAlt />} value={formData.upazila} onChange={handleChange} options={['', ...filteredUpazilas]} disabled={!editing || !formData.district} />
-
-        {editing && (
-          <div className="flex gap-4">
-            <button type="submit" className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded">
-              <FaSave /> Save
-            </button>
-            <button type="button" onClick={handleCancel} className="flex items-center gap-2 bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded">
-              <FaTimes /> Cancel
-            </button>
-          </div>
-        )}
-      </form>
+      )}
     </div>
   );
 };
-
-const InputField = ({ label, name, icon, value, onChange, disabled }) => (
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">{label}</label>
-    <div className="flex items-center border border-gray-300 rounded-md px-3 py-2">
-      <div className="text-gray-400 mr-2">{icon}</div>
-      <input
-        type="text"
-        name={name}
-        value={value}
-        onChange={onChange}
-        disabled={disabled}
-        className={`w-full bg-transparent focus:outline-none text-gray-900 ${disabled ? 'cursor-not-allowed' : ''}`}
-      />
-    </div>
-  </div>
-);
-
-const SelectField = ({ label, name, icon, value, onChange, options, disabled }) => (
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">{label}</label>
-    <div className="flex items-center border border-gray-300 rounded-md px-3 py-2">
-      <div className="text-gray-400 mr-2">{icon}</div>
-      <select
-        name={name}
-        value={value}
-        onChange={onChange}
-        disabled={disabled}
-        className={`w-full bg-transparent focus:outline-none text-gray-900 appearance-none ${disabled ? 'cursor-not-allowed' : ''}`}
-      >
-        {options.map((opt, idx) => (
-          <option key={idx} value={opt}>
-            {opt === '' ? `Select ${label}` : opt}
-          </option>
-        ))}
-      </select>
-    </div>
-  </div>
-);
 
 export default Profile;

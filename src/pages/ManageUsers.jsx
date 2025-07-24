@@ -43,6 +43,12 @@ const AllUsers = () => {
   };
 
   const totalPages = Math.ceil(totalUsers / limit);
+  
+  if(users.length===0){
+    return <div className="flex items-center justify-center py-20">
+      <div className="border-red-500 border-4 w-16 rounded-full animate-spin"></div>
+    </div>
+  }
 
   return (
     <div className="p-4 max-w-6xl mx-auto">
@@ -138,6 +144,7 @@ const AllUsers = () => {
               <tr>
                 <td colSpan={7} className="text-center py-4">
                   No users found.
+                  
                 </td>
               </tr>
             )}

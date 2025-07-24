@@ -140,7 +140,7 @@ const HomePage = () => {
                     <div className="mt-4 grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm font-medium text-gray-500">Location</p>
-                        <p className="text-sm text-gray-900">{request.district}, {request.upazila}</p>
+                        <p className="text-sm text-gray-900">{request.recipientDistrict}, {request.recipientUpazila}</p>
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-500">Date & Time</p>

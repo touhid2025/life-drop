@@ -61,9 +61,7 @@ const Navbar = () => {
     </>
   );
 
-  if(!userr){
-    return Loader;
-  }
+  
 
   return (
     <nav className="bg-white/70 backdrop-blur-lg shadow-sm px-4 py-3 sticky top-0 z-50">
