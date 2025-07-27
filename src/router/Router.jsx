@@ -20,6 +20,7 @@ import BlogDetails from "../pages/BlogDetails";
 import DonationDetails from "../pages/DonationDetails";
 import SearchDonor from "../pages/SearchDonor";
 import PrivateRoute from "../provider/PrivateRout";
+import FundUs from "../pages/FundUs";
 
 
 
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
         {
           path: '/blog',
           element: <Blog></Blog>
+        },
+        {
+          path: "/funding",
+          element: <FundUs></FundUs>
         },
         {
           path: "/blogs/:id",

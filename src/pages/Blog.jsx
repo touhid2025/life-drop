@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
+import Loader from "../component/Loader";
 
 const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
@@ -22,7 +23,7 @@ const Blogs = () => {
   }, []);
 
   if (loading) {
-    return <div className="text-center mt-10 text-lg text-gray-600">Loading blogs...</div>;
+    return <Loader></Loader>
   }
 
   return (

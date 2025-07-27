@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link} from 'react-router';
 import { FaTint } from 'react-icons/fa';
 import axios from 'axios';
+import Loader from '../component/Loader';
 // import { AuthContext } from '../provider/AuthProvider';
 
 
@@ -25,6 +26,10 @@ const DonationRequests = () => {
   // const handleView = () => {
   //  navigate(location.state ? location.state : '/');
   // };
+
+  if(requests.length===0){
+    return <Loader></Loader>
+  }
 
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">

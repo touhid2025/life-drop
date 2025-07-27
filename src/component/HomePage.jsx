@@ -3,6 +3,7 @@ import { Link, } from 'react-router';
 import axios from 'axios';
 // import { AuthContext } from '../provider/AuthProvider';
 import {  useEffect, useState } from 'react';
+import Loader from './Loader';
 
 const HomePage = () => {
   // Sample blood donation requests data
@@ -38,6 +39,10 @@ const HomePage = () => {
     { id: 2, name: 'Lives Saved', value: '3,500+', icon: FaHandsHelping },
     { id: 3, name: 'Active Requests', value: '85+', icon: FaSearch }
   ];
+
+  if(requests.length===0){
+    return <Loader></Loader>
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -149,7 +154,7 @@ const HomePage = () => {
                     </div>
                     <div className="mt-5">
                       <Link
-                        to={`/donation-request/${request._id}`}
+                        to={`/donation-details/${request._id}`}
                         className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700"
                       >
                         View Details
@@ -240,7 +245,7 @@ const HomePage = () => {
             Join thousands of donors who are making a difference in their communities.
           </p>
           <Link
-            to="/register"
+            to="log/signup"
             className="mt-8 w-full inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-red-600 bg-white hover:bg-red-50 sm:w-auto"
           >
             Sign up now
