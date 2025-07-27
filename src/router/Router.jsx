@@ -18,6 +18,7 @@ import ManageUsers from "../pages/ManageUsers";
 import ManageDonation from "../pages/ManageDonation";
 import BlogDetails from "../pages/BlogDetails";
 import DonationDetails from "../pages/DonationDetails";
+import SearchDonor from "../pages/SearchDonor";
 import PrivateRoute from "../provider/PrivateRout";
 
 
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
         {
           path: "/blogs/:id",
           element: <BlogDetails></BlogDetails>,
+        },
+        {
+          path: "/search-donor",
+          element: <SearchDonor></SearchDonor>
         },
         
         {
