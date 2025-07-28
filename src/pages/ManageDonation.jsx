@@ -22,7 +22,7 @@ const AllDonationRequests = () => {
 
   const fetchRequests = () => {
     axios
-      .get("http://localhost:5000/api/donation-requests")
+      .get("https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests")
       .then((res) => setRequests(res.data))
       .catch((err) => console.error(err));
   };
@@ -34,7 +34,7 @@ const AllDonationRequests = () => {
   useEffect(() => {
     if (userr?.email) {
       axios
-        .get(`http://localhost:5000/api/users?email=${userr.email}`)
+        .get(`https://assignment-twelve-server-side-eight.vercel.app/api/users?email=${userr.email}`)
         .then((res) => setCurrentUser(res.data))
         .catch((err) => console.error(err));
     }
@@ -42,7 +42,7 @@ const AllDonationRequests = () => {
 
   const updateStatus = async (id, newStatus) => {
     try {
-      await axios.patch(`http://localhost:5000/api/donation-requests/${id}`, {
+      await axios.patch(`https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests/${id}`, {
         status: newStatus,
       });
       Swal.fire("Success", `Status updated to ${newStatus}`, "success");
@@ -63,7 +63,7 @@ const AllDonationRequests = () => {
 
     if (confirm.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:5000/api/donation-requests/${id}`);
+        await axios.delete(`https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests/${id}`);
         Swal.fire("Deleted!", "Request has been deleted.", "success");
         fetchRequests();
       } catch (err) {

@@ -18,7 +18,7 @@ const Profile = () => {
   useEffect(() => {
     if (userr?.email) {
       axios
-        .get(`http://localhost:5000/api/users?email=${userr.email}`)
+        .get(`https://assignment-twelve-server-side-eight.vercel.app/api/users?email=${userr.email}`)
         .then((res) => {
           setUserData(res.data);
           setPreviewUrl(res.data.avatar);
@@ -41,7 +41,6 @@ const Profile = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // When district changes, reset upazila
     if (name === 'district') {
       setUserData((prev) => ({ ...prev, district: value, upazila: '' }));
     } else {
@@ -59,6 +58,7 @@ const Profile = () => {
     e.preventDefault();
 
     let updatedUser = { ...userData };
+    delete updatedUser._id;
 
     if (newAvatarFile) {
       const formData = new FormData();
@@ -78,17 +78,22 @@ const Profile = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${userData._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedUser),
-      });
+      const response = await fetch(
+        `https://assignment-twelve-server-side-eight.vercel.app/api/users/${userData._id.$oid || userData._id}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedUser),
+        }
+      );
 
       if (!response.ok) throw new Error('Update failed');
 
-      const newRes = await fetch(`http://localhost:5000/api/users/${userData._id}`);
-      const updatedData = await newRes.json();
-      setUserData(updatedData);
+      // আবার নতুন তথ্য নিয়ে আসা
+      const updatedRes = await axios.get(
+        `https://assignment-twelve-server-side-eight.vercel.app/api/users?email=${userr.email}`
+      );
+      setUserData(updatedRes.data);
       setEditing(false);
       setNewAvatarFile(null);
       Swal.fire('Success', 'Profile updated successfully', 'success');

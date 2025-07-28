@@ -15,7 +15,7 @@ const HomePage = () => {
     // const navigate = useNavigate();
   
   useEffect(() => {
-    axios.get('http://localhost:5000/api/donation-requests')
+    axios.get('https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests')
       .then(res => {
         const pending = res.data.filter(req => req.donationStatus === 'pending');
         setRequests(pending);

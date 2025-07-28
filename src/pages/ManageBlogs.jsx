@@ -8,7 +8,7 @@ const ManageBlogs = () => {
   const [blogs, setBlogs] = useState([]);
 
   const fetchBlogs = async () => {
-    const res = await axios.get("http://localhost:5000/api/blogs");
+    const res = await axios.get("https://assignment-twelve-server-side-eight.vercel.app/api/blogs");
     setBlogs(res.data);
   };
 
@@ -19,7 +19,7 @@ const ManageBlogs = () => {
   const handleStatusToggle = async (id, currentStatus) => {
     const newStatus = currentStatus === "published" ? "draft" : "published";
     try {
-      await axios.patch(`http://localhost:5000/api/blogs/${id}`, { status: newStatus });
+      await axios.patch(`https://assignment-twelve-server-side-eight.vercel.app/api/blogs/${id}`, { status: newStatus });
       Swal.fire("Updated", `Blog status set to ${newStatus}`, "success");
       fetchBlogs();
     } catch {
@@ -38,7 +38,7 @@ const ManageBlogs = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:5000/api/blogs/${id}`);
+        await axios.delete(`https://assignment-twelve-server-side-eight.vercel.app/api/blogs/${id}`);
         Swal.fire("Deleted!", "The blog has been deleted.", "success");
         fetchBlogs();
       } catch {

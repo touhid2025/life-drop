@@ -9,7 +9,7 @@ const Blogs = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/blogs?status=published");
+        const res = await fetch("https://assignment-twelve-server-side-eight.vercel.app/api/blogs?status=published");
         const data = await res.json();
         setBlogs(data);
       } catch (error) {

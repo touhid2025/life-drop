@@ -7,12 +7,13 @@ import {
   FaSignInAlt, FaUserPlus,
   FaTachometerAlt, FaSignOutAlt
 } from 'react-icons/fa';
-import Loader from './Loader';
+
 
 const Navbar = () => {
   const { userr, logOut } = useContext(AuthContext);
-  console.log(userr)
+ 
   const [userData, setUserData] = useState(null);
+  
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ const Navbar = () => {
   useEffect(() => {
   if (userr?.email) {
     axios
-      .get(`http://localhost:5000/api/users?email=${userr.email}`)
+      .get(`https://assignment-twelve-server-side-eight.vercel.app/api/users?email=${userr.email}`)
       .then(res => {
         setUserData(res.data);
       })
@@ -31,6 +32,7 @@ const Navbar = () => {
     setUserData(null);
   }
 }, [userr]);
+
 
 
   // Logout handler
@@ -42,17 +44,7 @@ const Navbar = () => {
     });
   };
 
-  // Close dropdown if click outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
+  
   const navLinks = (
     <>
       <NavLink to="/" onClick={() => setMenuOpen(false)} className="block text-gray-700 hover:text-red-600 px-4 py-2">Home</NavLink>

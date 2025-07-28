@@ -14,7 +14,7 @@ const DonationDetails = () => {
 
   // Fetch full user info
   useEffect(() => {
-    axios.get("http://localhost:5000/api/users")
+    axios.get("https://assignment-twelve-server-side-eight.vercel.app/api/users")
       .then(res => {
         const foundUser = res.data.users.find(u => u.email === userr?.email);
         setUserData(foundUser);
@@ -23,12 +23,12 @@ const DonationDetails = () => {
 
   // Fetch donation request
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/donation-requests/${id}`)
+    axios.get(`https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests/${id}`)
       .then(res => setDonation(res.data));
   }, [id]);
 
   const handleConfirmDonate = () => {
-    axios.patch(`http://localhost:5000/api/donation-requests/${id}/donate`, {
+    axios.patch(`https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests/${id}/donate`, {
       donorName: userData?.name,
       donorEmail: userData?.email,
     })

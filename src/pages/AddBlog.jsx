@@ -58,7 +58,7 @@ const AddBlog = () => {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/blogs", {
+      const res = await fetch("https://assignment-twelve-server-side-eight.vercel.app/api/blogs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newBlog),

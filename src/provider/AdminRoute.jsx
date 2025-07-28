@@ -15,7 +15,7 @@ const AdminRoute = ({ children }) => {
     const fetchUserData = async () => {
       if (userr?.email) {
         try {
-          const res = await axios.get('http://localhost:5000/api/users');
+          const res = await axios.get('https://assignment-twelve-server-side-eight.vercel.app/api/users');
           const foundUser = res.data.users.find(u => u.email === userr.email);
           setCurrentUser(foundUser);
         } catch (error) {

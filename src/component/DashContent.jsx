@@ -17,7 +17,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (userr?.email) {
-      axios.get('http://localhost:5000/api/users')
+      axios.get('https://assignment-twelve-server-side-eight.vercel.app/api/users')
         .then(res => {
           const found = res.data.users.find(u => u.email === userr.email);
           setUserData(found);
@@ -28,7 +28,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (userr?.email) {
       axios
-        .get(`http://localhost:5000/api/donation-requests?email=${userr.email}`)
+        .get(`https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests?email=${userr.email}`)
         .then(res => {
           const sorted = res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
           setRequests(sorted.slice(0, 3));
@@ -45,7 +45,7 @@ const Dashboard = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .patch(`http://localhost:5000/api/donation-requests/${id}`, { status: newStatus })
+          .patch(`https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests/${id}`, { status: newStatus })
           .then(() => {
             setRequests(prev =>
               prev.map(r => (r._id === id ? { ...r, donationStatus: newStatus } : r))
@@ -65,7 +65,7 @@ const Dashboard = () => {
       confirmButtonText: 'Yes, Delete',
     }).then(result => {
       if (result.isConfirmed) {
-        axios.delete(`http://localhost:5000/api/donation-requests/${id}`)
+        axios.delete(`https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests/${id}`)
           .then(() => {
             setRequests(prev => prev.filter(r => r._id !== id));
             Swal.fire('Deleted!', 'Request has been deleted.', 'success');

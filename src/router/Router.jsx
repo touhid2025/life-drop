@@ -23,6 +23,8 @@ import PrivateRoute from "../provider/PrivateRout";
 import FundUs from "../pages/FundUs";
 import AdminDashboardCards from "../pages/AdminDashboardCards";
 import Unauthorized from "../pages/Unauthorized";
+import AdminRoute from "../provider/AdminRoute";
+import Loader from "../component/Loader";
 
 
 
@@ -34,7 +36,6 @@ const router = createBrowserRouter([
     children: [
         {
             path: "/",
-            loader: ()=>fetch('http://localhost:5000/api/users'),
             element: <Home></Home>,
         },
         {
@@ -47,11 +48,11 @@ const router = createBrowserRouter([
         },
         {
           path: "/funding",
-          element: <FundUs></FundUs>
+          element: <PrivateRoute><FundUs></FundUs></PrivateRoute>
         },
         {
           path: "/blogs/:id",
-          element: <BlogDetails></BlogDetails>,
+          element: <PrivateRoute><BlogDetails></BlogDetails></PrivateRoute>,
         },
         {
           path: "/search-donor",
@@ -64,7 +65,7 @@ const router = createBrowserRouter([
         },
         {
           path: "/donation-details/:id",
-          element: <DonationDetails></DonationDetails>
+          element: <PrivateRoute><DonationDetails></DonationDetails></PrivateRoute>
         }
     ]
   },
@@ -92,6 +93,7 @@ const router = createBrowserRouter([
 
             return { districts, upazilas };
               },
+              hydrateFallbackElement: <Loader></Loader>,
             element: <Signup />,
 
 
@@ -104,7 +106,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/dashboard",
-        element: <DashContent></DashContent>
+        element: <PrivateRoute><DashContent></DashContent></PrivateRoute>
       },
       {
         path: "profile",
@@ -121,32 +123,32 @@ const router = createBrowserRouter([
 
             return { districts, upazilas };
               },
-        element: <Profile></Profile>,
+               hydrateFallbackElement: <Loader></Loader>,
+        element: <PrivateRoute><Profile></Profile></PrivateRoute>,
       },
       {
         path: "my-donation",
-        element: <MyDonation></MyDonation>,
+        element: <PrivateRoute><MyDonation></MyDonation></PrivateRoute>,
       },
       {
         path: "manage-donation",
-        element: <ManageDonation></ManageDonation>
+        element: <AdminRoute><ManageDonation></ManageDonation></AdminRoute>
       },
       {
         path: "admin-dashboard",
-        element: <AdminDashboardCards></AdminDashboardCards>
+        element: <AdminRoute><AdminDashboardCards></AdminDashboardCards></AdminRoute>
       },
       {
         path: "add-blogs",
-        element: <AddBlog></AddBlog>,
+        element: <AdminRoute><AddBlog></AddBlog></AdminRoute>,
       },
       {
         path: "manage-blogs",
-        loader: ()=>fetch('http://localhost:5000/api/users'),
-        element: <ManageBlogs></ManageBlogs>,
+        element: <AdminRoute><ManageBlogs></ManageBlogs></AdminRoute>,
       },
       {
         path: "manage-users",
-        element: <ManageUsers></ManageUsers>
+        element: <AdminRoute><ManageUsers></ManageUsers></AdminRoute>
       },
       {
         path: "create",
@@ -163,6 +165,7 @@ const router = createBrowserRouter([
 
             return { districts, upazilas };
               },
+               hydrateFallbackElement: <Loader></Loader>,
         element: <CreateDonation></CreateDonation>
       }
     ]

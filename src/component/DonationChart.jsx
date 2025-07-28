@@ -6,7 +6,7 @@ const DonationChart = () => {
   const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/donations")
+    axios.get("https://assignment-twelve-server-side-eight.vercel.app/api/donations")
       .then(res => {
         const donations = res.data;
 

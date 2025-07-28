@@ -39,7 +39,7 @@ axios.get("/upazilas.json").then((res) => {
     if (!selectedBloodGroup || !selectedDistrict || !selectedUpazila) return;
 
     axios
-      .get("http://localhost:5000/api/search-donors", {
+      .get("https://assignment-twelve-server-side-eight.vercel.app/api/search-donors", {
         params: {
           bloodGroup: selectedBloodGroup,
           district: selectedDistrict,

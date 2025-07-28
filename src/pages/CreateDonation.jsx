@@ -28,7 +28,7 @@ const CreateDonation = () => {
  useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/users");
+        const res = await axios.get("https://assignment-twelve-server-side-eight.vercel.app/api/users");
         const matchedUser = res.data.users.find((u) => u.email === userr?.email);
         if (matchedUser) {
           setFullUser(matchedUser);
@@ -83,7 +83,7 @@ const CreateDonation = () => {
     };
 
     try {
-      const res = await axios.post("http://localhost:5000/api/donation-requests", payload);
+      const res = await axios.post("https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests", payload);
       if (res.data.success) {
         Swal.fire("Success", "Donation request created!", "success");
         // Reset form, but keep district/upazila and bloodGroup from user

@@ -13,7 +13,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (userr?.email) {
-      axios.get('http://localhost:5000/api/users')
+      axios.get('https://assignment-twelve-server-side-eight.vercel.app/api/users')
         .then(res => {
           const foundUser = res.data.users.find(u => u.email === userr.email);
           setCurrentUser(foundUser);

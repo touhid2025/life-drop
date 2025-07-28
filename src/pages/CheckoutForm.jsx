@@ -14,7 +14,7 @@ const CheckoutForm = ({ clientSecret }) => {
     let isMounted = true;
     const fetchUser = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/users");
+        const res = await fetch("https://assignment-twelve-server-side-eight.vercel.app/api/users");
         const data = await res.json();
         const matchedUser = data.users.find((user) => user.email === userr.email);
         if (isMounted) setCurrentUser(matchedUser);
@@ -72,7 +72,7 @@ const CheckoutForm = ({ clientSecret }) => {
           date: new Date().toISOString(),
         };
 
-        const saveRes = await fetch("http://localhost:5000/api/donations", {
+        const saveRes = await fetch("https://assignment-twelve-server-side-eight.vercel.app/api/donations", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(donationInfo),

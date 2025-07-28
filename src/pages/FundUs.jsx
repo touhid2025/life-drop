@@ -28,7 +28,7 @@ const FundUs = () => {
         didOpen: () => Swal.showLoading(),
       });
 
-      const res = await fetch("http://localhost:5000/api/create-payment-intent", {
+      const res = await fetch("https://assignment-twelve-server-side-eight.vercel.app/api/create-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount }),

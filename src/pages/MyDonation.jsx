@@ -18,7 +18,7 @@ const MyDonation = () => {
 
   useEffect(() => {
     if (userr?.email) {
-      axios.get(`http://localhost:5000/api/donation-requests?email=${userr.email}`)
+      axios.get(`https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests?email=${userr.email}`)
         .then(res => setMyDonations(res.data || []))
         .catch(err => console.error("Error fetching donations:", err));
     }
@@ -33,7 +33,7 @@ const MyDonation = () => {
       confirmButtonText: 'Yes, delete it!',
     }).then(result => {
       if (result.isConfirmed) {
-        axios.delete(`http://localhost:5000/api/donation-requests/${id}`)
+        axios.delete(`https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests/${id}`)
           .then(() => {
             setMyDonations(prev => prev.filter(r => r._id !== id));
             Swal.fire('Deleted!', 'Request has been deleted.', 'success');
@@ -54,7 +54,7 @@ const MyDonation = () => {
       confirmButtonText: 'Yes, update',
     }).then(result => {
       if (result.isConfirmed) {
-        axios.patch(`http://localhost:5000/api/donation-requests/${id}`, { status })
+        axios.patch(`https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests/${id}`, { status })
           .then(() => {
             setMyDonations(prev =>
               prev.map(r => (r._id === id ? { ...r, donationStatus: status } : r))

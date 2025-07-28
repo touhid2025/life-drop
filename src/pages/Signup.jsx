@@ -99,7 +99,7 @@ const Signup = () => {
         createdAt: new Date(),
       };
 
-      await fetch('http://localhost:5000/api/users', {
+      await fetch('https://assignment-twelve-server-side-eight.vercel.app/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userInfo),

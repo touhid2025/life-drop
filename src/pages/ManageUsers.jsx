@@ -12,7 +12,7 @@ const AllUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/users", {
+      const res = await axios.get("https://assignment-twelve-server-side-eight.vercel.app/api/users", {
         params: {
           status: statusFilter,
           page: currentPage,
@@ -33,7 +33,7 @@ const AllUsers = () => {
 
   const updateUser = async (id, payload) => {
     try {
-      await axios.patch(`http://localhost:5000/api/users/${id}`, payload);
+      await axios.patch(`https://assignment-twelve-server-side-eight.vercel.app/api/users/${id}`, payload);
       Swal.fire("Success", "User updated", "success");
       fetchUsers();
     } catch (err) {
