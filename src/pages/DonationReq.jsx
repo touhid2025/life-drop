@@ -3,14 +3,13 @@ import { Link} from 'react-router';
 import { FaTint } from 'react-icons/fa';
 import axios from 'axios';
 import Loader from '../component/Loader';
-// import { AuthContext } from '../provider/AuthProvider';
+
 
 
 const DonationRequests = () => {
   const [requests, setRequests] = useState([]);
-  // const { userr } = useContext(AuthContext);
-  // const navigate = useNavigate();
-  // const location = useLocation(); 
+  const [loading, setLoading] = useState(false);
+ 
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/donation-requests')
@@ -21,13 +20,12 @@ const DonationRequests = () => {
       .catch(err => {
         console.error('Failed to fetch requests:', err);
       });
+      setLoading(true)
   }, []);
 
-  // const handleView = () => {
-  //  navigate(location.state ? location.state : '/');
-  // };
+  
 
-  if(requests.length===0){
+  if(loading==false){
     return <Loader></Loader>
   }
 

@@ -8,6 +8,7 @@ import Loader from './Loader';
 const HomePage = () => {
   // Sample blood donation requests data
   const [requests, setRequests] = useState([]);
+  const [loading,setLoading]=useState(false);
   const sortedData = requests.sort((a,b)=> new Date(a.date) - new Date(b.date));
   const topThree = sortedData.slice(0,3);
     // const { userr } = useContext(AuthContext);
@@ -22,6 +23,7 @@ const HomePage = () => {
       .catch(err => {
         console.error('Failed to fetch requests:', err);
       });
+      setLoading(true);
   }, []);
 
   // const handleView = (id) => {
@@ -40,7 +42,7 @@ const HomePage = () => {
     { id: 3, name: 'Active Requests', value: '85+', icon: FaSearch }
   ];
 
-  if(requests.length===0){
+  if(loading==false){
     return <Loader></Loader>
   }
 

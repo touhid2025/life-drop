@@ -4,6 +4,7 @@ import { Link, NavLink, Outlet } from 'react-router';
 import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../provider/AuthProvider';
 import axios from 'axios';
+import { FaDashcube } from 'react-icons/fa6';
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -46,6 +47,9 @@ const Dashboard = () => {
       {/* Admin Routes */}
       {currentUser?.role === 'admin' && (
         <>
+        <NavLink to="/dashboard/admin-dashboard" onClick={() => setSidebarOpen(false)} className="flex items-center gap-2 px-4 py-2 hover:bg-red-100 rounded">
+            <FaDashcube /> Admin Dashboard
+          </NavLink>
           <NavLink to="/dashboard/manage-users" onClick={() => setSidebarOpen(false)} className="flex items-center gap-2 px-4 py-2 hover:bg-red-100 rounded">
             <FaUsersCog /> Manage Users
           </NavLink>

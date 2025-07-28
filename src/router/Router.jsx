@@ -21,6 +21,8 @@ import DonationDetails from "../pages/DonationDetails";
 import SearchDonor from "../pages/SearchDonor";
 import PrivateRoute from "../provider/PrivateRout";
 import FundUs from "../pages/FundUs";
+import AdminDashboardCards from "../pages/AdminDashboardCards";
+import Unauthorized from "../pages/Unauthorized";
 
 
 
@@ -38,6 +40,10 @@ const router = createBrowserRouter([
         {
           path: '/blog',
           element: <Blog></Blog>
+        },
+        {
+          path: "/unauthorized",
+          element: <Unauthorized></Unauthorized>
         },
         {
           path: "/funding",
@@ -124,6 +130,10 @@ const router = createBrowserRouter([
       {
         path: "manage-donation",
         element: <ManageDonation></ManageDonation>
+      },
+      {
+        path: "admin-dashboard",
+        element: <AdminDashboardCards></AdminDashboardCards>
       },
       {
         path: "add-blogs",
