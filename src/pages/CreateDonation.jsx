@@ -1,13 +1,14 @@
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 import { AuthContext } from "../provider/AuthProvider";
 
 const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 const CreateDonation = () => {
   const { userr } = useContext(AuthContext);
+  const navigate = useNavigate();
   const { districts = [], upazilas = [] } = useLoaderData();
 
   const [fullUser, setFullUser] = useState(null);
@@ -98,6 +99,7 @@ const CreateDonation = () => {
           time: "",
           message: ""
         });
+        navigate('/dashboard/my-donation');
       }
     } catch (error) {
       Swal.fire("Error", "Failed to create donation request.", "error");

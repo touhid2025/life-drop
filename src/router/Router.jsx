@@ -25,6 +25,7 @@ import AdminDashboardCards from "../pages/AdminDashboardCards";
 import Unauthorized from "../pages/Unauthorized";
 import AdminRoute from "../provider/AdminRoute";
 import Loader from "../component/Loader";
+import ViewDetails from "../pages/ViewDetails";
 
 
 
@@ -107,6 +108,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard",
         element: <PrivateRoute><DashContent></DashContent></PrivateRoute>
+      },
+      {
+        path: "view-details/:id",
+        element: <PrivateRoute><ViewDetails></ViewDetails></PrivateRoute>
       },
       {
         path: "profile",

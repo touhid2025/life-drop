@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import JoditEditor from "jodit-react";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router";
 
 const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`;
 const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
@@ -10,6 +11,7 @@ const AddBlog = () => {
   const [thumbnail, setThumbnail] = useState(null);
   const [content, setContent] = useState("");
   const [uploading, setUploading] = useState(false);
+  const navigate = useNavigate();
 
   const handleImageUpload = async (file) => {
     const formData = new FormData();
@@ -69,6 +71,7 @@ const AddBlog = () => {
         setTitle("");
         setThumbnail(null);
         setContent("");
+        navigate('/dashboard/manage-blogs');
       } else {
         Swal.fire("❌ Error", "Failed to save blog", "error");
       }
@@ -105,7 +108,7 @@ const AddBlog = () => {
         <button
           type="submit"
           disabled={uploading}
-          className="bg-red-600 hover:bg-red-700 text-white py-2 px-6 rounded"
+          className="bg-red-600 cursor-pointer hover:bg-red-700 text-white py-2 px-6 rounded"
         >
           {uploading ? "Uploading..." : "Save as Draft"}
         </button>

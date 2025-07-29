@@ -1,20 +1,14 @@
 import { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
-import Swal from 'sweetalert2';
 import { AuthContext } from '../provider/AuthProvider';
-// import { Link } from 'react-router';
-import {
-  HiOutlinePencilAlt,
-  HiOutlineTrash,
-  HiOutlineCheckCircle,
-  HiOutlineBan,
-  HiOutlineEye,
-  HiOutlineClock
-} from 'react-icons/hi';
+import { Link } from 'react-router'; // Fixed: should use 'react-router-dom'
+import { FaEye } from 'react-icons/fa';
 
 const MyDonation = () => {
   const { userr } = useContext(AuthContext);
   const [myDonations, setMyDonations] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const donationsPerPage = 5;
 
   useEffect(() => {
     if (userr?.email) {
@@ -24,49 +18,17 @@ const MyDonation = () => {
     }
   }, [userr]);
 
-  const handleDelete = (id) => {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'This will permanently delete the request.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete it!',
-    }).then(result => {
-      if (result.isConfirmed) {
-        axios.delete(`https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests/${id}`)
-          .then(() => {
-            setMyDonations(prev => prev.filter(r => r._id !== id));
-            Swal.fire('Deleted!', 'Request has been deleted.', 'success');
-          })
-          .catch(error => {
-            console.error('Delete error:', error);
-            Swal.fire('Error!', 'Failed to delete.', 'error');
-          });
-      }
-    });
-  };
+  // Pagination Logic
+  const indexOfLast = currentPage * donationsPerPage;
+  const indexOfFirst = indexOfLast - donationsPerPage;
+  const currentDonations = myDonations.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(myDonations.length / donationsPerPage);
 
-  const handleStatusUpdate = (id, status) => {
-    Swal.fire({
-      title: `Change status to ${status}?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, update',
-    }).then(result => {
-      if (result.isConfirmed) {
-        axios.patch(`https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests/${id}`, { status })
-          .then(() => {
-            setMyDonations(prev =>
-              prev.map(r => (r._id === id ? { ...r, donationStatus: status } : r))
-            );
-            Swal.fire('Updated!', `Status changed to ${status}.`, 'success');
-          })
-          .catch(() => Swal.fire('Error', 'Failed to update status.', 'error'));
-      }
-    });
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
   };
-
-  
 
   if (myDonations.length === 0) {
     return (
@@ -77,84 +39,79 @@ const MyDonation = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4 text-center">My Donation Requests</h2>
-      <div className="grid gap-4">
-        {myDonations.map((donation) => (
-          <div key={donation._id} className="bg-white shadow border rounded-lg p-4 space-y-2">
-            <h3 className="text-xl font-semibold text-red-600">{donation.recipientName}</h3>
-            <p><strong>District:</strong> {donation.recipientDistrict}</p>
-            <p><strong>Upazila:</strong> {donation.recipientUpazila}</p>
-            <p><strong>Hospital:</strong> {donation.hospitalName}</p>
-            <p><strong>Address:</strong> {donation.address}</p>
-            <p><strong>Blood Group:</strong> {donation.bloodGroup}</p>
-            <p><strong>Date:</strong> {donation.date} <strong>Time:</strong> {donation.time}</p>
-            <p><strong>Message:</strong> {donation.message}</p>
-            <p><strong>Status:</strong> <span className="capitalize">{donation.donationStatus}</span></p>
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <h2 className="text-3xl font-bold mb-4 text-red-600">
+        Welcome, {userr?.name || userr?.email}
+      </h2>
 
-            <div className="flex flex-wrap gap-2 mt-3">
-              {/* View */}
-              {/* <Link
-                to={`/dashboard/view-donation/${donation._id}`}
-                className="flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
-              >
-                <HiOutlineEye className="text-lg" />
-                View
-              </Link> */}
+      <h3 className="text-xl font-semibold mb-2">Your Recent Donation Requests</h3>
 
-              {/* Edit */}
-              {/* <Link
-                to={`/dashboard/edit-donation/${donation._id}`}
-                className="flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm"
-              >
-                <HiOutlinePencilAlt className="text-lg" />
-                Edit
-              </Link> */}
+      <div className="overflow-x-auto border rounded">
+        <table className="min-w-full text-sm text-left">
+          <thead className="bg-red-100 text-gray-800">
+            <tr>
+              <th className="px-4 py-2">Recipient</th>
+              <th className="px-4 py-2 hidden md:table-cell">Location</th>
+              <th className="px-4 py-2">Blood Group</th>
+              <th className="px-4 py-2 hidden lg:table-cell">Date & Time</th>
+              <th className="px-4 py-2">Status</th>
+              <th className="px-4 py-2 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentDonations.map(request => (
+              <tr key={request._id} className="border-t hover:bg-gray-50">
+                <td className="px-4 py-2">{request?.recipientName}</td>
+                <td className="px-4 py-2 hidden md:table-cell">
+                  {request?.recipientDistrict}, {request?.recipientUpazila}
+                </td>
+                <td className="px-4 py-2">{request?.bloodGroup}</td>
+                <td className="px-4 py-2 hidden lg:table-cell">
+                  {request.date} at {request?.time}
+                </td>
+                <td className="px-4 py-2 capitalize">{request?.donationStatus}</td>
+                <td className="px-4 py-2 text-right">
+                  <Link
+                    to={`/dashboard/view-details/${request?._id}`}
+                    title="View Details"
+                    className="px-2 rounded-sm shadow-md p-1 text-white bg-indigo-600 hover:bg-indigo-300"
+                  >
+                    <FaEye className="inline mr-1" />
+                    View
+                    
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-              {/* Delete */}
-              <button
-                onClick={() => handleDelete(donation._id)}
-                className="flex cursor-pointer items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
-              >
-                <HiOutlineTrash className="text-lg" />
-                Delete
-              </button>
-
-              {/* Mark In Progress */}
-              {donation.donationStatus === 'pending' && (
-                <button
-                  onClick={() => handleStatusUpdate(donation._id, 'inprogress')}
-                  className="flex cursor-pointer items-center gap-1 bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded text-sm"
-                >
-                  <HiOutlineClock className="text-lg" />
-                  In Progress
-                </button>
-              )}
-
-              {/* Mark Done */}
-              {donation.donationStatus === 'inprogress' && (
-                <button
-                  onClick={() => handleStatusUpdate(donation._id, 'done')}
-                  className="flex cursor-pointer items-center gap-1 bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
-                >
-                  <HiOutlineCheckCircle className="text-lg" />
-                  Done
-                </button>
-              )}
-
-              {/* Cancel */}
-              {donation.donationStatus === 'inprogress' && (
-                <button
-                  onClick={() => handleStatusUpdate(donation._id, 'canceled')}
-                  className="flex cursor-pointer items-center gap-1 bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm"
-                >
-                  <HiOutlineBan className="text-lg" />
-                  Cancel
-                </button>
-              )}
-            </div>
-          </div>
+      {/* Pagination Controls */}
+      <div className="flex justify-center mt-6 gap-2">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="bg-indigo-600 px-3 py-1 cursor-pointer text-white rounded-sm shadow-lg"
+        >
+          Prev
+        </button>
+        {[...Array(totalPages)].map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => handlePageChange(idx + 1)}
+            className={`btn btn-sm ${currentPage === idx + 1 ? 'btn-primary' : 'btn-outline'}`}
+          >
+            {idx + 1}
+          </button>
         ))}
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="bg-indigo-600 px-3 py-1 cursor-pointer text-white rounded-sm shadow-lg"
+        >
+          Next
+        </button>
       </div>
     </div>
   );

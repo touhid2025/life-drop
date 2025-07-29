@@ -8,12 +8,24 @@ import {
   FaTimesCircle,
   FaTrashAlt,
   FaHourglassStart,
+  FaEye
 } from 'react-icons/fa';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  CartesianGrid,
+} from 'recharts';
 
-const Dashboard = () => {
+const DashContent = () => {
   const { userr } = useContext(AuthContext);
   const [userData, setUserData] = useState(null);
   const [requests, setRequests] = useState([]);
+  const [statusData, setStatusData] = useState([]);
 
   useEffect(() => {
     if (userr?.email) {
@@ -32,51 +44,27 @@ const Dashboard = () => {
         .then(res => {
           const sorted = res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
           setRequests(sorted.slice(0, 3));
+
+          // Chart data setup
+          const statusMap = {};
+          res.data.forEach(req => {
+            const status = req.donationStatus || 'pending';
+            statusMap[status] = (statusMap[status] || 0) + 1;
+          });
+
+          const chartData = Object.entries(statusMap).map(([status, count]) => ({
+            status: status.charAt(0).toUpperCase() + status.slice(1),
+            count
+          }));
+
+          setStatusData(chartData);
         });
     }
   }, [userr]);
 
-  const handleStatusUpdate = (id, newStatus) => {
-    Swal.fire({
-      title: `Are you sure to mark as ${newStatus}?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: `Yes, ${newStatus}`,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        axios
-          .patch(`https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests/${id}`, { status: newStatus })
-          .then(() => {
-            setRequests(prev =>
-              prev.map(r => (r._id === id ? { ...r, donationStatus: newStatus } : r))
-            );
-            Swal.fire('Success', `Marked as ${newStatus}`, 'success');
-          });
-      }
-    });
-  };
+  
 
-  const handleDelete = (id) => {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'This will permanently delete the request.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, Delete',
-    }).then(result => {
-      if (result.isConfirmed) {
-        axios.delete(`https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests/${id}`)
-          .then(() => {
-            setRequests(prev => prev.filter(r => r._id !== id));
-            Swal.fire('Deleted!', 'Request has been deleted.', 'success');
-          }).catch(error => {
-            console.error('Delete error:', error.response?.data || error.message);
-            Swal.fire('Error!', 'Failed to delete.', 'error');
-          });
-      }
-    });
-  };
-
+  
   if (userData == null)
     return (
       <div className="w-12 text-red-600 mx-auto mt-10">
@@ -133,40 +121,14 @@ const Dashboard = () => {
                 </td>
                 <td className="px-4 py-2 capitalize">{request.donationStatus}</td>
                 <td className="px-4 py-2 flex justify-end flex-wrap gap-1">
-                  {request.donationStatus === 'pending' && (
-                    <button
-                      title="Mark In Progress"
-                      className="btn btn-xs btn-outline cursor-pointer text-blue-600 border-blue-600 hover:bg-blue-100"
-                      onClick={() => handleStatusUpdate(request._id, 'inprogress')}
-                    >
-                      <FaHourglassStart />
-                    </button>
-                  )}
-                  {request.donationStatus === 'inprogress' && (
-                    <>
-                      <button
-                        title="Mark Done"
-                        className="btn btn-xs btn-success cursor-pointer text-lime-500"
-                        onClick={() => handleStatusUpdate(request._id, 'done')}
-                      >
-                        <FaCheckCircle />
-                      </button>
-                      <button
-                        title="Cancel"
-                        className="btn btn-xs btn-error cursor-pointer text-red-500"
-                        onClick={() => handleStatusUpdate(request._id, 'canceled')}
-                      >
-                        <FaTimesCircle />
-                      </button>
-                    </>
-                  )}
-                  <button
-                    title="Delete Request"
-                    className="btn btn-xs btn-outline cursor-pointer btn-error"
-                    onClick={() => handleDelete(request._id)}
+                  <Link
+                    to={`/dashboard/view-details/${request._id}`}
+                    title="View Details"
+                    className="flex items-center rounded-sm shadow-md px-2 py-1 bg-indigo-600 text-white hover:bg-indigo-300"
                   >
-                    <FaTrashAlt />
-                  </button>
+                    View
+                    <FaEye className='ml-1' />
+                  </Link>
                 </td>
               </tr>
             ))}
@@ -189,8 +151,25 @@ const Dashboard = () => {
           View My All Requests
         </Link>
       </div>
+
+      {/* Bar Chart Section */}
+      <div className="mt-10">
+        <h3 className="text-xl font-semibold mb-4">Donation Requests Summary</h3>
+        <div className="bg-white shadow rounded p-4">
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={statusData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="status" />
+              <YAxis allowDecimals={false} />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="count" fill="#f43f5e" name="Total Requests" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default DashContent;
