@@ -1,18 +1,16 @@
 import { FaTint, FaHandsHelping, FaSearch, FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
 import { Link, } from 'react-router';
 import axios from 'axios';
-// import { AuthContext } from '../provider/AuthProvider';
 import {  useEffect, useState } from 'react';
 import Loader from './Loader';
 
 const HomePage = () => {
-  // Sample blood donation requests data
+  
   const [requests, setRequests] = useState([]);
   const [loading,setLoading]=useState(false);
   const sortedData = requests.sort((a,b)=> new Date(a.date) - new Date(b.date));
   const topThree = sortedData.slice(0,3);
-    // const { userr } = useContext(AuthContext);
-    // const navigate = useNavigate();
+   
   
   useEffect(() => {
     axios.get('https://assignment-twelve-server-side-eight.vercel.app/api/donation-requests')
@@ -26,13 +24,7 @@ const HomePage = () => {
       setLoading(true);
   }, []);
 
-  // const handleView = (id) => {
-  //   if (!userr) {
-  //     navigate('/login');
-  //   } else {
-  //     navigate(`/donation-details/${id}`);
-  //   }
-  // };
+  
 
 
   // Featured stats data
