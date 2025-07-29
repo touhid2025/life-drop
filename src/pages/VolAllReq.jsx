@@ -126,7 +126,7 @@ const VolAllReq = () => {
                     </span>
                   </td>
                   <td className="text-right space-x-1 flex flex-wrap justify-end gap-1">
-                    {currentUser?.role === "admin" &&
+                    {currentUser?.role === "volunteer" &&
                       req.donationStatus === "pending" && (
                         <button
                           title="Mark In Progress"
@@ -137,7 +137,7 @@ const VolAllReq = () => {
                         </button>
                       )}
 
-                    {currentUser?.role === "admin" &&
+                    {currentUser?.role === "volunteer" &&
                       req.donationStatus === "inprogress" && (
                         <>
                           <button
@@ -157,10 +157,11 @@ const VolAllReq = () => {
                         </>
                       )}
 
-                    {currentUser?.role === "admin" && (
+                    {currentUser?.role === "volunteer" && (
                       <button
+                      disabled
                         title="Delete Request"
-                        className="btn btn-xs btn-outline cursor-pointer btn-error"
+                        className="btn disabled:cursor-not-allowed btn-xs btn-outline cursor-pointer btn-error"
                         onClick={() => deleteRequest(req._id)}
                       >
                         <FaTrashAlt />
