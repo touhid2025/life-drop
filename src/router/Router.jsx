@@ -26,6 +26,9 @@ import Unauthorized from "../pages/Unauthorized";
 import AdminRoute from "../provider/AdminRoute";
 import Loader from "../component/Loader";
 import ViewDetails from "../pages/ViewDetails";
+import VolDashboard from "../pages/VolDashboard";
+import VolAllReq from "../pages/VolAllReq";
+import VolBlog from "../pages/VolBlog";
 
 
 
@@ -134,6 +137,18 @@ const router = createBrowserRouter([
       {
         path: "my-donation",
         element: <PrivateRoute><MyDonation></MyDonation></PrivateRoute>,
+      },
+      {
+        path: "vol-dash",
+        element: <PrivateRoute><VolDashboard></VolDashboard></PrivateRoute>
+      },
+      {
+        path: "all-donation-requests",
+        element: <PrivateRoute><VolAllReq></VolAllReq></PrivateRoute>
+      },
+      {
+        path: "vol-blogs",
+        element: <PrivateRoute><VolBlog></VolBlog></PrivateRoute>
       },
       {
         path: "manage-donation",

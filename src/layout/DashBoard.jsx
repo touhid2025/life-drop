@@ -1,10 +1,11 @@
 // DashboardLayout.jsx
-import { FaTachometerAlt, FaUser, FaTint, FaUsersCog, FaClipboardList, FaPlus } from 'react-icons/fa';
+import { FaTachometerAlt, FaUser, FaTint, FaUsersCog, FaClipboardList, FaPlus, FaMicroblog } from 'react-icons/fa';
 import { Link, NavLink, Outlet } from 'react-router';
 import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../provider/AuthProvider';
 import axios from 'axios';
 import { FaDashcube } from 'react-icons/fa6';
+import { FiGrid } from 'react-icons/fi';
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -39,9 +40,18 @@ const Dashboard = () => {
 
       {/* Volunteer Routes */}
       {currentUser?.role === 'volunteer' && (
-        <NavLink to="/dashboard/all-donation-requests" onClick={() => setSidebarOpen(false)} className="flex items-center gap-2 px-4 py-2 hover:bg-red-100 rounded">
-          <FaClipboardList /> All Requests
+        <>
+        
+        <NavLink to="/dashboard/vol-dash" onClick={() => setSidebarOpen(false)} className="flex items-center gap-2 px-4 py-2 hover:bg-red-100 rounded">
+          <FiGrid /> Volunteer Dashboard
         </NavLink>
+        <NavLink to="/dashboard/all-donation-requests" onClick={() => setSidebarOpen(false)} className="flex items-center gap-2 px-4 py-2 hover:bg-red-100 rounded">
+          <FaClipboardList /> All Donation Requests
+        </NavLink>
+        <NavLink to="/dashboard/vol-blogs" onClick={() => setSidebarOpen(false)} className="flex items-center gap-2 px-4 py-2 hover:bg-red-100 rounded">
+          <FaMicroblog /> Blogs
+        </NavLink>
+        </>
       )}
 
       {/* Admin Routes */}
