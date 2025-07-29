@@ -1,6 +1,6 @@
 # LifeDrop - Blood Donation Management System
 
-**Live Site:** [https://lifedrop-client.vercel.app](https://lifedrop-client.vercel.app)
+**Live Site:** [https://life-drop-touhid.netlify.app](https://life-drop-touhid.netlify.app)
 
 **Admin Login Credentials:**
 - **Email:** touhidbinamin@gmail.com
@@ -35,7 +35,7 @@
 
 - **Frontend:** React, Tailwind CSS, Axios, Recharts, Jodit Editor, SweetAlert2  
 - **Backend:** Express.js, MongoDB, Mongoose, Stripe  
-- **Auth & Hosting:** Firebase Auth, Vercel (Frontend), Render (Backend)
+- **Auth & Hosting:** Firebase Auth, Netlify(Frontend) Vercel (Backend)
 
 ---
 
@@ -43,8 +43,7 @@
 
 - `/src/pages/` - All routes and page components  
 - `/src/components/` - Reusable UI components  
-- `/src/provider/` - Auth context provider  
-- `/src/hooks/` - Custom hooks  
+- `/src/provider/` - Auth context provider   
 - `/src/routes/` - Route protection
 
 ---
