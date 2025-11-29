@@ -2,9 +2,7 @@
 
 **Live Site:** [https://life-drop-touhid.netlify.app](https://life-drop-touhid.netlify.app)
 
-**Admin Login Credentials:**
-- **Email:** touhidbinamin@gmail.com
-- **Password:** 1234aa
+
 
 ---
 
